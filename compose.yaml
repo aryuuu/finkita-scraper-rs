@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: 'postgres:10.7'
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=test
+    ports:
+      - 54328:5432
+    volumes:
+      - ._/postgres-data:/var/lib/postgresql/data
+
+  selenium:
+    image: 'selenium/standalone-chrome:108.0-20221219'
+    ports:
+      - 4444:4444
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    container_name: 'finkita-service'
+    ports:
+      - 3000:3000
+    env_file:
+      - ./.env
+    environment:
+      - NODE_ENV=development
+      - PGHOST=postgres
+      - PGPORT=5432
+    volumes:
+      - ./:/app
+
